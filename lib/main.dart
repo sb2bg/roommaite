@@ -30,7 +30,7 @@ class _RoommaiteAppState extends State<RoommaiteApp> {
         Provider(create: (_) => AuthService()),
       ],
       child: MaterialApp(
-        title: 'Roommaite',
+        title: App.title,
         debugShowCheckedModeBanner: false,
         theme: dark,
         home: const AuthenticationWrapper(),
