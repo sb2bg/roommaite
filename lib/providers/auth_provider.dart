@@ -1,4 +1,5 @@
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:roommaite/models/questions.dart';
 import 'package:roommaite/util/constants.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,18 +22,49 @@ class AuthService {
       return _cachedProfile!;
     }
 
-    final response = await _supabase
-        .from('profiles')
-        .select()
-        .eq('id', _supabase.auth.currentUser!.id)
-        .single();
+    final profile = await getProfileById(_supabase.auth.currentUser!.id);
 
-    final profile = Profile.fromJson(response);
+    if (profile == null) {
+      throw const AuthException('Profile not found.');
+    }
 
     _cachedProfile = profile;
     _lastProfileFetch = DateTime.now();
 
     return profile;
+  }
+
+  Future<Profile?> getProfileById(String uuid) async {
+    Profile? profile;
+
+    await _tryWrapper(() async {
+      final result =
+          await _supabase.from('profiles').select().eq('id', uuid).single();
+
+      profile = Profile.fromJson(result);
+    });
+
+    return profile;
+  }
+
+  Future<List<Question>> getQuestions() async {
+    final questions = await _supabase
+        .from('user_questions')
+        .select()
+        .eq('user_id', _supabase.auth.currentUser!.id);
+
+    return questions.map((json) => Question.fromMap(json)).toList();
+  }
+
+  Future<void> answerQuestion(Question question) async {
+    await _supabase.from('user_questions').upsert({
+      'user_id': _supabase.auth.currentUser!.id,
+      ...question.toMap(),
+    });
+  }
+
+  Future<void> finishProfile() async {
+    final questions = await getQuestions();
   }
 
   Future<String?> _tryWrapper(Function() function) async {
