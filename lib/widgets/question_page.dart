@@ -158,7 +158,7 @@ class NonEditableQuestions extends StatelessWidget {
     final authService = Provider.of<AuthService>(context, listen: false);
 
     return FutureBuilder<List<Question>>(
-      future: authService.getQuestions(),
+      future: authService.getQuestionsFrom(profile),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Scaffold(

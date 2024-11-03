@@ -80,6 +80,15 @@ class AuthService {
     return questions.map((json) => Question.fromMap(json)).toList();
   }
 
+  Future<List<Question>> getQuestionsFrom(Profile profile) async {
+    final questions = await _supabase
+        .from('user_questions')
+        .select()
+        .eq('user_id', profile.id);
+
+    return questions.map((json) => Question.fromMap(json)).toList();
+  }
+
   Future<void> updateLocation(String location) async {
     await _supabase.from('profiles').update({
       'location': location,
