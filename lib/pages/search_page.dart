@@ -26,13 +26,66 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
+  void _handleApprove(Profile match) {
+    // Handle approve logic here
+    setState(() {
+      matches?.remove(match);
+    });
+  }
+
+  void _handleDeny(Profile match) {
+    // Handle deny logic here
+    setState(() {
+      matches?.remove(match);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search Page'),
       ),
-      body: const Center(child: QuestionPage(edit: false)),
+      body: Center(
+        child: matches == null
+            ? const CircularProgressIndicator()
+            : matches!.isEmpty
+                ? const Text('No more matches!')
+                : Stack(
+                    children: matches!.map((match) {
+                      return Card(
+                        margin: const EdgeInsets.all(16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              title: Text(match.name),
+                              subtitle: Text(match.location ?? 'No Location'),
+                            ),
+                            Expanded(
+                                child:
+                                    QuestionPage(edit: false, profile: match)),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  color: Colors.red,
+                                  onPressed: () => _handleDeny(match),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.check),
+                                  color: Colors.green,
+                                  onPressed: () => _handleApprove(match),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+      ),
     );
   }
 }
