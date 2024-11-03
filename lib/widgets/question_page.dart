@@ -26,12 +26,12 @@ class EditableQuestions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: _requiredQuestions.length + _optionalQuestions.length,
+      itemCount: requiredQuestions.length + _optionalQuestions.length,
       separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) {
-        final question = index < _requiredQuestions.length
-            ? _requiredQuestions[index]
-            : _optionalQuestions[index - _requiredQuestions.length];
+        final question = index < requiredQuestions.length
+            ? requiredQuestions[index]
+            : _optionalQuestions[index - requiredQuestions.length];
 
         return ListTile(
           title: Padding(
@@ -76,8 +76,7 @@ class NonEditableQuestions extends StatelessWidget {
 }
 
 // null means open ended question
-final List<Question<dynamic>> _requiredQuestions = [
-  OpenEndedQuestion('What is your name?'),
+final List<Question<dynamic>> requiredQuestions = [
   OpenEndedQuestion('What is your age?'),
   OpenEndedQuestion('What is your education level?'),
   OpenEndedQuestion('What is your occupation?'),
