@@ -108,10 +108,10 @@ class _ProfileInfoState extends State<_ProfileInfo>
             // Make sure TabBarView is flexible to fit the remaining space
             child: TabBarView(
               controller: _tabController,
-              children: const [
+              children: [
                 // Replace with your actual widgets or pages
-                QuestionPage(edit: true),
-                Center(child: Text('Preferences')),
+                QuestionPage(edit: true, profile: widget.profile),
+                const Center(child: Text('Preferences')),
               ],
             ),
           ),
