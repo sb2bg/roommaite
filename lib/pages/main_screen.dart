@@ -4,6 +4,7 @@ import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:roommaite/pages/calibrate_page.dart';
 import 'package:roommaite/pages/profile_page.dart';
 import 'package:roommaite/pages/search_page.dart';
+import 'package:roommaite/util/theme.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -38,9 +39,9 @@ class _MainScreenState extends State<MainScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8),
           child: GNav(
-            hoverColor: Colors.grey,
-            tabBackgroundColor: Colors.white,
+            tabBackgroundColor: AppColors.purple,
             color: Colors.white,
+            textStyle: TextStyle(color: Colors.white),
             gap: 8,
             activeColor: Colors.black,
             iconSize: 24,
@@ -52,15 +53,18 @@ class _MainScreenState extends State<MainScreen> {
               //   text: 'Home',
               // ),
               GButton(
+                iconActiveColor: Colors.white,
                 icon: CupertinoIcons.person_2_alt,
                 text: 'Search',
               ),
               GButton(
                 icon: CupertinoIcons.tuningfork,
+                iconActiveColor: Colors.white,
                 text: 'Calibrate',
               ),
               GButton(
                 icon: CupertinoIcons.person,
+                iconActiveColor: Colors.white,
                 text: 'Profile',
               ),
             ],

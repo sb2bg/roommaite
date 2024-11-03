@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 abstract class AppColors {
-  static const Color burntOrange = Color(0xFFCC5500);
-  static const Color darkBurntOrange = Color(0xFF993D00);
-  static const Color lightBurntOrange = Color(0xFFFFA07A);
+  static const Color purple = Color(0xFF6A5FA2);
+  static const Color darkPurple = Color(0xFF2D265C);
+  static const Color lightPurple = Color(0xFF9D92C6);
   static const Color whiteSmoke = Color(0xFFF5F5F5);
   static const Color darkGray = Color(0xFFA9A9A9);
   static const Color dimGray = Color(0xFF696969);
@@ -20,20 +20,20 @@ ThemeData get dark {
     brightness: Brightness.dark,
     colorScheme: const ColorScheme(
       brightness: Brightness.dark,
-      primary: AppColors.burntOrange,
+      primary: AppColors.purple,
       onPrimary: Colors.white,
-      secondary: AppColors.lightBurntOrange,
+      secondary: AppColors.lightPurple,
       onSecondary: Colors.white,
-      tertiary: AppColors.darkBurntOrange,
-      onTertiary: AppColors.darkBurntOrange,
+      tertiary: AppColors.darkPurple,
+      onTertiary: AppColors.darkPurple,
       error: AppColors.darkGray,
       onError: Colors.white,
-      surface: AppColors.darkBurntOrange,
+      surface: AppColors.darkPurple,
       onSurface: AppColors.whiteSmoke,
     ),
     fontFamily: fontFamily,
     appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.darkBurntOrange,
+      backgroundColor: AppColors.darkPurple,
       titleTextStyle: TextStyle(
         fontWeight: FontWeight.w600,
         fontFamily: fontFamily,
@@ -43,19 +43,19 @@ ThemeData get dark {
       elevation: 0,
       iconTheme: const IconThemeData(color: AppColors.whiteSmoke),
       systemOverlayStyle: const SystemUiOverlayStyle(
-        statusBarColor: AppColors.darkBurntOrange,
+        statusBarColor: AppColors.purple,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
     ),
     scaffoldBackgroundColor: AppColors.black,
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: AppColors.darkBurntOrange,
-      selectedItemColor: AppColors.burntOrange,
+      backgroundColor: AppColors.darkPurple,
+      selectedItemColor: AppColors.purple,
       unselectedItemColor: AppColors.dimGray.withOpacity(0.6),
     ),
     cardTheme: CardTheme(
-      color: AppColors.darkBurntOrange,
+      color: AppColors.darkPurple,
       shadowColor: AppColors.dimGray.withOpacity(0.25),
     ),
     textTheme: TextTheme(
@@ -102,7 +102,7 @@ ThemeData get dark {
         borderRadius: BorderRadius.circular(8.0),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: AppColors.burntOrange),
+        borderSide: const BorderSide(color: AppColors.purple),
         borderRadius: BorderRadius.circular(8.0),
       ),
       errorBorder: OutlineInputBorder(
@@ -117,7 +117,7 @@ ThemeData get dark {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(AppColors.burntOrange),
+        backgroundColor: WidgetStateProperty.all(AppColors.purple),
         foregroundColor: WidgetStateProperty.all(Colors.white),
         shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -126,13 +126,13 @@ ThemeData get dark {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all(AppColors.lightBurntOrange),
+        foregroundColor: WidgetStateProperty.all(AppColors.lightPurple),
       ),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      backgroundColor: AppColors.darkBurntOrange,
+      backgroundColor: AppColors.darkPurple,
       contentTextStyle: const TextStyle(color: AppColors.whiteSmoke),
     ),
     dividerTheme: const DividerThemeData(
