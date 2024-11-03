@@ -27,10 +27,16 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void refresh() {
+    setState(() {
+      loading = true;
+    });
     final authService = Provider.of<AuthService>(context, listen: false);
     IrisVectorDataHelper.getMatches(authService).then((value) {
       matches = value;
       filterMatches();
+      setState(() {
+        loading = false;
+      });
     });
   }
 
@@ -152,13 +158,9 @@ class _SearchPageState extends State<SearchPage> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                                 onPressed: () async {
-                                  setState(() {
-                                    loading = true;
-                                  });
                                   await _removeMatchesFromPrefs();
                                   setState(() {
                                     refresh();
-                                    loading = false;
                                   });
                                 },
                                 child: const Text('Review seen profiles')),
