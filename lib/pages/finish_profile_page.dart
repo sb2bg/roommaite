@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:roommaite/models/profile.dart';
 import 'package:roommaite/models/questions.dart';
+import 'package:roommaite/pages/main_screen.dart';
 import 'package:roommaite/providers/auth_provider.dart';
 import 'package:roommaite/widgets/question_page.dart';
 
@@ -45,11 +46,18 @@ class _FinishProfilePageState extends State<FinishProfilePage> {
           }
         }
 
+        bool needsLocation = false;
+
+        if (profile.location == null) {
+          needsLocation = true;
+        }
+
         return QuestionAnswerer(
           profile: profile,
           unansweredQuestions: unansweredQuestions,
           authService: authService,
           parentState: this,
+          needsLocation: needsLocation,
         );
       },
     );
@@ -63,12 +71,14 @@ class QuestionAnswerer extends StatefulWidget {
     required this.unansweredQuestions,
     required this.authService,
     required this.parentState,
+    required this.needsLocation,
   });
 
   final Profile profile;
   final List<Question> unansweredQuestions;
   final AuthService authService;
   final _FinishProfilePageState parentState;
+  final bool needsLocation;
 
   @override
   State<QuestionAnswerer> createState() => _QuestionAnswererState();
@@ -78,6 +88,10 @@ class _QuestionAnswererState extends State<QuestionAnswerer> {
   final Set<Question> markedQuestions = {};
 
   bool unansweredQuestionsExist() {
+    if (widget.needsLocation && locationController.text.isEmpty) {
+      return true;
+    }
+
     for (final question in widget.unansweredQuestions) {
       if (question.answer == null) {
         return true;
@@ -85,6 +99,8 @@ class _QuestionAnswererState extends State<QuestionAnswerer> {
     }
     return false;
   }
+
+  final TextEditingController locationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +122,19 @@ class _QuestionAnswererState extends State<QuestionAnswerer> {
             child: Text(
                 'Please answer the following questions to complete your profile. Once you have answered all the questions, you will be able to find matches.',
                 style: Theme.of(context).textTheme.bodyMedium),
+          ),
+          if (widget.needsLocation)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                  'Please provide your location to find matches near you.',
+                  style: Theme.of(context).textTheme.bodyMedium),
+            ),
+          TextField(
+            decoration: const InputDecoration(
+              hintText: 'Location',
+            ),
+            controller: locationController,
           ),
           for (final question in widget.unansweredQuestions)
             ListTile(
@@ -169,6 +198,12 @@ class _QuestionAnswererState extends State<QuestionAnswerer> {
                   }
                 }
 
+                if (widget.needsLocation &&
+                    locationController.text.isNotEmpty) {
+                  await widget.authService
+                      .updateLocation(locationController.text);
+                }
+
                 widget.unansweredQuestions.removeWhere(
                     (question) => markedQuestions.contains(question));
                 markedQuestions.clear();
@@ -177,7 +212,11 @@ class _QuestionAnswererState extends State<QuestionAnswerer> {
                 if (!unansweredQuestionsExist()) {
                   await widget.authService.finishProfile();
                   if (context.mounted) {
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen(),
+                      ),
+                    );
                   }
                 }
               },
