@@ -15,7 +15,18 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: ListView.separated(
+        child: widget.edit ? EditableQuestions() : NonEditableQuestions()
+      ),
+    );
+  }
+}
+
+class EditableQuestions extends StatelessWidget {
+  const EditableQuestions({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
           itemCount: _requiredQuestions.length + _optionalQuestions.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
@@ -26,12 +37,12 @@ class _QuestionPageState extends State<QuestionPage> {
             return ListTile(
               title: Text(question.question),
               subtitle: question is OpenEndedQuestion
-                  ? TextField(
-                      decoration: const InputDecoration(
+                  ? const TextField(
+                      decoration: InputDecoration(
                         hintText: 'Answer',
                       ),
                     )
-                  : Row(
+                  : const Row(
                       children: [
                         Text('Yes'),
                         Radio(
@@ -49,9 +60,16 @@ class _QuestionPageState extends State<QuestionPage> {
                     ),
             );
           },
-        ),
-      ),
-    );
+        );
+  }  
+}
+
+class NonEditableQuestions extends StatelessWidget {
+  const NonEditableQuestions({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
 
