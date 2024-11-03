@@ -4,10 +4,8 @@ import 'package:roommaite/widgets/question_page.dart';
 
 import 'package:provider/provider.dart';
 import 'package:roommaite/models/profile.dart';
-import 'package:roommaite/pages/sign_in_page.dart';
 import 'package:roommaite/providers/auth_provider.dart';
 import 'package:roommaite/widgets/profile_avatar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -16,45 +14,23 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class Question {
-  final String question;
-  final List<String>? options;
-  String answer;
-
-  Question({
-    required this.question, 
-    this.options, 
-    this.answer = ''
-  });
-}
-
 class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
 
-    return StreamBuilder<AuthState>(
-      stream: authService.authStateChanges,
+    return FutureBuilder<Profile?>(
+      future: authService.getProfile(),
       builder: (context, snapshot) {
-        // authService.signOut();
-        if (!snapshot.hasData || snapshot.data!.session?.user == null) {
-          return const SignInPage();
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
-        return FutureBuilder<Profile?>(
-          future: authService.getProfile(),
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Scaffold(
-                body: Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-
-            return _ProfileInfo(profile: snapshot.data!);
-          },
-        );
+        return _ProfileInfo(profile: snapshot.data!);
       },
     );
   }
@@ -72,7 +48,6 @@ class _ProfileInfo extends StatefulWidget {
 class _ProfileInfoState extends State<_ProfileInfo>
     with SingleTickerProviderStateMixin {
   late final _tabController = TabController(length: 2, vsync: this);
-
 
   @override
   Widget build(BuildContext context) {
@@ -111,9 +86,9 @@ class _ProfileInfoState extends State<_ProfileInfo>
                   const SizedBox(height: 12),
                   Text(widget.profile.name,
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold))                ],
+                          fontSize: 20, fontWeight: FontWeight.bold))
+                ],
               )),
-          const Divider(),
           TabBar(
             dividerColor: Colors.transparent,
             controller: _tabController,
@@ -128,6 +103,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
               )
             ],
           ),
+          const Divider(),
           Expanded(
             // Make sure TabBarView is flexible to fit the remaining space
             child: TabBarView(
