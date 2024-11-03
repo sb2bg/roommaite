@@ -16,6 +16,7 @@ class AuthenticationWrapper extends StatelessWidget {
     return StreamBuilder<AuthState>(
       stream: authService.authStateChanges,
       builder: (context, snapshot) {
+        // authService.signOut();
         if (!snapshot.hasData || snapshot.data!.session?.user == null) {
           return const SignInPage();
         }
