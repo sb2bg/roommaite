@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:roommaite/models/questions.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key, required this.edit});
 
-   final bool edit;
+  final bool edit;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
@@ -13,53 +14,68 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Question Page'),
-      ),
-      body: const Center(
-        child: Text('Question Page'),
+      body: Center(
+        child: ListView.separated(
+          itemCount: _requiredQuestions.length + _optionalQuestions.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            final question = index < _requiredQuestions.length
+                ? _requiredQuestions[index]
+                : _optionalQuestions[index - _requiredQuestions.length];
+
+            return ListTile(
+              title: Text(question.question),
+              subtitle: question is OpenEndedQuestion
+                  ? TextField(
+                      decoration: const InputDecoration(
+                        hintText: 'Answer',
+                      ),
+                    )
+                  : Row(
+                      children: [
+                        Text('Yes'),
+                        Radio(
+                          value: true,
+                          groupValue: null,
+                          onChanged: null,
+                        ),
+                        Text('No'),
+                        Radio(
+                          value: false,
+                          groupValue: null,
+                          onChanged: null,
+                        ),
+                      ],
+                    ),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
-const List<String> yesNo = ['Yes', 'No'];
-
 // null means open ended question
-const Map<String, List<String>?> requiredQuestions = {
-  'What is your age?': null,
-  'What is your education level?': [
-    'High school',
-    'Undergraduate',
-    'Graduate',
-    'Doctorate',
-    'No preference'
-  ],
-  'What is your major?': null,
-  'What is your occupation?': null,
-  'What is your level of cleanliness?': [
-    'Messy',
-    'Moderate',
-    'Clean',
-    'No preference'
-  ],
-  'What time do you usually go to bed?': null,
-  'What time do you usually wake up?': null,
-  'Do you have any pets?': yesNo,
-  'Do you smoke?': yesNo,
-  'Do you drink?': yesNo,
-  'Do you have any allergies?': yesNo,
-  'Do you have any dietary restrictions? If so, please specify.':
-      null, // important for matching? probably not
-};
+final List<Question<dynamic>> _requiredQuestions = [
+  OpenEndedQuestion('What is your name?'),
+  OpenEndedQuestion('What is your age?'),
+  OpenEndedQuestion('What is your education level?'),
+  OpenEndedQuestion('What is your occupation?'),
+  OpenEndedQuestion('What is your major?'),
+  OpenEndedQuestion('What is your level of cleanliness?'),
+  OpenEndedQuestion('What is your level of noise tolerance?'),
+  OpenEndedQuestion('What time do you usually go to bed?'),
+  OpenEndedQuestion('What time do you usually wake up?'),
+  YesNoQuestion('Do you smoke?'),
+  YesNoQuestion('Do you drink?'),
+  YesNoQuestion('Do you have any pets?'),
+  YesNoQuestion('Do you have any dietary restrictions?'),
+  OpenEndedQuestion('What is your preferred number of roommates?'),
+];
 
-const Map<String, List<String>?> optionalQuestions = {
-  'What is your favorite color?': null,
-  'What is your favorite food?': null,
-  'What is your favorite movie?': null,
-  'What is your favorite book?': null,
-  'What is your favorite song?': null,
-  'What is your favorite animal?': null,
-  'What is your favorite hobby?': null,
-  'What is your favorite sport?': null,
-};
+final List<Question<dynamic>> _optionalQuestions = [
+  OpenEndedQuestion('What is your budget?'),
+  OpenEndedQuestion('What is your preferred move-in date?'),
+  OpenEndedQuestion('What is your preferred lease length?'),
+  OpenEndedQuestion('What is your preferred neighborhood?'),
+];
