@@ -37,6 +37,21 @@ class AuthService {
     return profile;
   }
 
+  Future<bool> addMatch(Profile matchee) async {
+    await _supabase.from('matches').upsert({
+      'matcher': userId,
+      'matchee': matchee.id,
+    });
+
+    final matches = await getMatches();
+
+    if (matches.contains(matchee)) {
+      return true;
+    }
+
+    return false;
+  }
+
   Future<Profile?> getProfileById(String uuid) async {
     Profile? profile;
 
@@ -99,7 +114,7 @@ class AuthService {
       for (final receivedMatch in receivedMatches) {
         if (sentMatch['matchee'] == receivedMatch['matcher']) {
           final profile = await getProfileById(sentMatch['matchee']);
-          if (profile != null) {
+          if (profile != null && matches.every((p) => p.id != profile.id)) {
             matches.add(profile);
           }
         }

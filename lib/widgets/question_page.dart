@@ -106,13 +106,38 @@ class _EditableQuestionsState extends State<EditableQuestions> {
                           Radio(
                             value: true,
                             groupValue: question.answer,
-                            onChanged: null,
+                            onChanged: (value) {
+                              setState(() {
+                                question.answer = value as bool;
+                              });
+                            },
                           ),
                           const Text('No'),
                           Radio(
                             value: false,
                             groupValue: question.answer,
-                            onChanged: null,
+                            onChanged: (value) {
+                              setState(() {
+                                question.answer = value as bool;
+                              });
+                            },
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(Icons.save),
+                            onPressed: waiting
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      waiting = true;
+                                    });
+                                    await Provider.of<AuthService>(context,
+                                            listen: false)
+                                        .answerQuestion(question);
+                                    setState(() {
+                                      waiting = false;
+                                    });
+                                  },
                           ),
                         ],
                       ));

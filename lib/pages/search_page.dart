@@ -35,29 +35,32 @@ class _SearchPageState extends State<SearchPage> {
   void filterMatches() async {
     final prefs = await SharedPreferences.getInstance();
     List<Profile> matchesCopy = List.from(matches!);
+    if (mounted) {
+      List<Profile> matchesToRemove =
+          await Provider.of<AuthService>(context, listen: false).getMatches();
 
-    for (var match in matches!) {
-      if (mounted) {
-        final auth = Provider.of<AuthService>(context, listen: false);
-        if (match.id == auth.userId) {
-          matchesCopy.remove(match);
+      for (var match in matches!) {
+        if (mounted) {
+          final auth = Provider.of<AuthService>(context, listen: false);
+          if (match.id == auth.userId ||
+              matchesToRemove.every((element) => element.id != match.id)) {
+            matchesCopy.remove(match);
+            continue;
+          }
+        }
+
+        final matchPrefsKey = 'match_${match.id}';
+        final matchPrefsValue = prefs.getBool(matchPrefsKey);
+
+        if (matchPrefsValue == null) {
           continue;
+        }
+
+        if (matchPrefsValue) {
+          matchesCopy.remove(match);
         }
       }
 
-      final matchPrefsKey = 'match_${match.id}';
-      final matchPrefsValue = prefs.getBool(matchPrefsKey);
-
-      if (matchPrefsValue == null) {
-        continue;
-      }
-
-      if (matchPrefsValue) {
-        matchesCopy.remove(match);
-      }
-    }
-
-    if (mounted) {
       setState(() {
         matches = matchesCopy;
       });
@@ -70,12 +73,24 @@ class _SearchPageState extends State<SearchPage> {
     prefs.setBool(matchPrefsKey, true);
   }
 
-  void _handleApprove(Profile match) {
+  void _handleApprove(Profile match) async {
     // Handle approve logic here
+    final authService = Provider.of<AuthService>(context, listen: false);
+    if (await authService.addMatch(match)) {
+      // show popup!
+      final snackBar = SnackBar(
+        content: Text('${match.name} also added you, go to matches to view.'),
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
     addMatchToPrefs(match);
-    setState(() {
-      matches?.remove(match);
-    });
+    if (mounted) {
+      setState(() {
+        matches?.remove(match);
+      });
+    }
   }
 
   void _handleDeny(Profile match) {
