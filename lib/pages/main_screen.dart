@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:roommaite/pages/profile_page.dart';
 import 'package:roommaite/pages/search_page.dart';
 
 class MainScreen extends StatefulWidget {
@@ -16,8 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   static final List<Widget> _widgetOptions = <Widget>[
     // HomePage(),
     SearchPage(),
-    // MapPage(),
-    // ProfilePage(),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -51,16 +51,16 @@ class _MainScreenState extends State<MainScreen> {
               // ),
               GButton(
                 icon: CupertinoIcons.person_2_alt,
-                text: 'Find Roomates',
+                text: 'Search',
               ),
               // GButton(
               //   icon: CupertinoIcons.map,
               //   text: 'Map',
               // ),
-              // GButton(
-              //   icon: CupertinoIcons.person,
-              //   text: 'Profile',
-              // ),
+              GButton(
+                icon: CupertinoIcons.person,
+                text: 'Profile',
+              ),
             ],
             selectedIndex: _selectedIndex,
             onTabChange: _onItemTapped,
