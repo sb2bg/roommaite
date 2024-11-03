@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:roommaite/models/profile.dart';
 import 'package:roommaite/models/questions.dart';
-import 'package:roommaite/widgets/profile_avatar.dart';
+import 'package:roommaite/providers/auth_provider.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key, required this.edit, required this.profile});
@@ -25,51 +26,98 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 }
 
-class EditableQuestions extends StatelessWidget {
+class EditableQuestions extends StatefulWidget {
   const EditableQuestions({super.key, required this.profile});
 
   final Profile profile;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: requiredQuestions.length + optionalQuestions.length,
-      separatorBuilder: (context, index) => const Divider(),
-      itemBuilder: (context, index) {
-        final question = index < requiredQuestions.length
-            ? requiredQuestions[index]
-            : optionalQuestions[index - requiredQuestions.length];
+  State<EditableQuestions> createState() => _EditableQuestionsState();
+}
 
-        return ListTile(
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(question.question),
-          ),
-          subtitle: question is OpenEndedQuestion
-              ? TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Answer',
-                  ),
-                  onChanged: (value) {
-                    question.answer = value;
-                  },
-                )
-              : const Row(
-                  children: [
-                    Text('Yes'),
-                    Radio(
-                      value: true,
-                      groupValue: null,
-                      onChanged: null,
+class _EditableQuestionsState extends State<EditableQuestions> {
+  bool waiting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: Provider.of<AuthService>(context, listen: false).getQuestions(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        final questions = snapshot.data!;
+
+        return ListView.separated(
+          itemCount: questions.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            final question = questions[index];
+            final controller = question is OpenEndedQuestion
+                ? TextEditingController(text: question.answer.toString())
+                : null;
+
+            return ListTile(
+              title: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(question.question),
+              ),
+              subtitle: question is OpenEndedQuestion
+                  ? Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: const InputDecoration(
+                              hintText: 'Answer',
+                            ),
+                            controller: controller,
+                            onChanged: (value) {
+                              question.answer = value;
+                            },
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.save),
+                          onPressed: waiting
+                              ? null
+                              : () async {
+                                  question.answer = controller!.text;
+                                  setState(() {
+                                    waiting = true;
+                                  });
+                                  await Provider.of<AuthService>(context,
+                                          listen: false)
+                                      .answerQuestion(question);
+                                  setState(() {
+                                    waiting = false;
+                                  });
+                                },
+                        )
+                      ],
+                    )
+                  : Row(
+                      children: [
+                        const Text('Yes'),
+                        Radio(
+                          value: true,
+                          groupValue: question.answer,
+                          onChanged: null,
+                        ),
+                        const Text('No'),
+                        Radio(
+                          value: false,
+                          groupValue: question.answer,
+                          onChanged: null,
+                        ),
+                      ],
                     ),
-                    Text('No'),
-                    Radio(
-                      value: false,
-                      groupValue: null,
-                      onChanged: null,
-                    ),
-                  ],
-                ),
+            );
+          },
         );
       },
     );
@@ -83,27 +131,43 @@ class NonEditableQuestions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      itemCount: requiredQuestions.length + optionalQuestions.length,
-      separatorBuilder: (context, index) => const Divider(),
-      itemBuilder: (context, index) {
-        final question = index < requiredQuestions.length
-            ? requiredQuestions[index]
-            : optionalQuestions[index - requiredQuestions.length];
+    final authService = Provider.of<AuthService>(context, listen: false);
 
-        return ListTile(
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(question.question),
-          ),
-          subtitle: question is OpenEndedQuestion
-              ? Text('${question.answer}')
-              : Text(question is YesNoQuestion
-                  ? question.answer != null
-                      ? 'Yes'
-                      : 'No'
-                  : 'Unknown'),
-          trailing: ProfileAvatar(profile: profile),
+    return FutureBuilder<List<Question>>(
+      future: authService.getQuestions(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        final questions = snapshot.data!;
+
+        return ListView.separated(
+          itemCount: questions.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            final question = questions[index];
+
+            return ListTile(
+              title: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Text(question.question),
+              ),
+              subtitle: question is OpenEndedQuestion
+                  ? Text('${question.answer}')
+                  : Text(question is YesNoQuestion
+                      ? question.answer != null
+                          ? question.answer!
+                              ? 'Yes'
+                              : 'No'
+                          : 'Unknown'
+                      : 'Unknown'),
+            );
+          },
         );
       },
     );

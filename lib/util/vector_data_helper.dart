@@ -31,7 +31,7 @@ class IrisVectorDataHelper {
       String id, List<Question> questions, String location) async {
     final questionString =
         questions.map((q) => '${q.question} ${q.answer}').join(';');
-    await http.get(
-        Uri.parse('$url/create_user/$id/$questionString/${null}/$location/'));
+    await http.get(Uri.parse(
+        '$url/create_user/$id/$questionString/$questionString/$location/'));
   }
 }

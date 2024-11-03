@@ -12,10 +12,10 @@ class _CalibratePageState extends State<CalibratePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Calibrate Page'),
+        title: const Text('Calibrate'),
       ),
       body: Center(
-        child: const Text('Calibrate Page'),
+        child: const Text('Calibrate'),
       ),
     );
   }

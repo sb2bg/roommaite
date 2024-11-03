@@ -64,10 +64,53 @@ class AuthService {
   }
 
   Future<void> answerQuestion(Question question) async {
-    await _supabase.from('user_questions').upsert({
-      'user_id': _supabase.auth.currentUser!.id,
-      ...question.toMap(),
-    });
+    try {
+      final existingQuestion = await _supabase
+          .from('user_questions')
+          .select()
+          .eq('user_id', _supabase.auth.currentUser!.id)
+          .eq('question', question.question)
+          .single();
+
+      await _supabase.from('user_questions').update({
+        'answer': question.answer,
+      }).eq('id', existingQuestion['id']);
+    } catch (error) {
+      // Question doesn't exist
+      await _supabase.from('user_questions').upsert({
+        'user_id': _supabase.auth.currentUser!.id,
+        ...question.toMap(),
+      });
+
+      return;
+    }
+  }
+
+  Future<List<Profile>> getMatches() async {
+    final sentMatches = await _supabase
+        .from('matches')
+        .select('matchee')
+        .eq('matcher', _supabase.auth.currentUser!.id);
+
+    final receivedMatches = await _supabase
+        .from('matches')
+        .select('matcher')
+        .eq('matchee', _supabase.auth.currentUser!.id);
+
+    final matches = <Profile>[];
+
+    for (final sentMatch in sentMatches) {
+      for (final receivedMatch in receivedMatches) {
+        if (sentMatch['matchee'] == receivedMatch['matcher']) {
+          final profile = await getProfileById(sentMatch['matchee']);
+          if (profile != null) {
+            matches.add(profile);
+          }
+        }
+      }
+    }
+
+    return matches;
   }
 
   Future<void> finishProfile() async {

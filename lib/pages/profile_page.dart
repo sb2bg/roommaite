@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roommaite/pages/matches_page.dart';
 import 'package:roommaite/widgets/question_page.dart';
 
 import 'package:provider/provider.dart';
@@ -19,8 +20,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
 
-    return FutureBuilder<Profile?>(
-      future: authService.getProfile(),
+    return FutureBuilder(
+      future: Future.wait([authService.getProfile(), authService.getMatches()]),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Scaffold(
@@ -30,7 +31,10 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         }
 
-        return _ProfileInfo(profile: snapshot.data!);
+        final profile = snapshot.data![0] as Profile;
+
+        return _ProfileInfo(
+            profile: profile, matches: snapshot.data![1] as List<Profile>);
       },
     );
   }
@@ -38,8 +42,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
 class _ProfileInfo extends StatefulWidget {
   final Profile profile;
+  final List<Profile> matches;
 
-  const _ProfileInfo({required this.profile});
+  const _ProfileInfo({required this.profile, required this.matches});
 
   @override
   State<_ProfileInfo> createState() => _ProfileInfoState();
@@ -69,7 +74,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       ProfileAvatar(
                           profile: widget.profile,
@@ -77,16 +82,19 @@ class _ProfileInfoState extends State<_ProfileInfo>
                           onClick: () {
                             // TODO: pop up a dialog to change profile picture
                           }),
+                      const SizedBox(width: 20),
+                      Column(
+                        children: [
+                          Text(' ${widget.profile.name}',
+                              style: const TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold)),
+                          _buildStatColumn(
+                              'Matches', widget.matches.length.toString()),
+                        ],
+                      ),
                       const Spacer(),
-                      _buildStatColumn('Matches', '0'),
-                      const Spacer(),
-                      _buildStatColumn('Opps', '3'),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Text(widget.profile.name,
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold))
                 ],
               )),
           TabBar(
@@ -94,12 +102,12 @@ class _ProfileInfoState extends State<_ProfileInfo>
             controller: _tabController,
             tabs: const [
               Tab(
-                // about this user's roommate habits
+                // about this user's habits
                 icon: Icon(CupertinoIcons.person),
               ),
               Tab(
-                // THEIR preferences for a roommate
-                icon: Icon(CupertinoIcons.slider_horizontal_3),
+                // our matches
+                icon: Icon(CupertinoIcons.heart),
               )
             ],
           ),
@@ -111,7 +119,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
               children: [
                 // Replace with your actual widgets or pages
                 QuestionPage(edit: true, profile: widget.profile),
-                const Center(child: Text('Preferences')),
+                const MatchesPage(),
               ],
             ),
           ),
@@ -121,17 +129,15 @@ class _ProfileInfoState extends State<_ProfileInfo>
   }
 
   Widget _buildStatColumn(String label, String count) {
-    return TextButton(
-        onPressed: () {},
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: const TextStyle(fontSize: 16),
-            ),
-            Text(label,
-                style: const TextStyle(color: Colors.grey, fontSize: 16))
-          ],
-        ));
+    return Row(
+      children: [
+        Text(
+          count,
+          style: const TextStyle(fontSize: 16),
+        ),
+        const SizedBox(width: 4),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 16))
+      ],
+    );
   }
 }
