@@ -15,8 +15,7 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: widget.edit ? EditableQuestions() : NonEditableQuestions()
-      ),
+          child: widget.edit ? EditableQuestions() : NonEditableQuestions()),
     );
   }
 }
@@ -27,41 +26,44 @@ class EditableQuestions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-          itemCount: _requiredQuestions.length + _optionalQuestions.length,
-          separatorBuilder: (context, index) => const Divider(),
-          itemBuilder: (context, index) {
-            final question = index < _requiredQuestions.length
-                ? _requiredQuestions[index]
-                : _optionalQuestions[index - _requiredQuestions.length];
+      itemCount: _requiredQuestions.length + _optionalQuestions.length,
+      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (context, index) {
+        final question = index < _requiredQuestions.length
+            ? _requiredQuestions[index]
+            : _optionalQuestions[index - _requiredQuestions.length];
 
-            return ListTile(
-              title: Text(question.question),
-              subtitle: question is OpenEndedQuestion
-                  ? const TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Answer',
-                      ),
-                    )
-                  : const Row(
-                      children: [
-                        Text('Yes'),
-                        Radio(
-                          value: true,
-                          groupValue: null,
-                          onChanged: null,
-                        ),
-                        Text('No'),
-                        Radio(
-                          value: false,
-                          groupValue: null,
-                          onChanged: null,
-                        ),
-                      ],
+        return ListTile(
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(question.question),
+          ),
+          subtitle: question is OpenEndedQuestion
+              ? const TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Answer',
+                  ),
+                )
+              : const Row(
+                  children: [
+                    Text('Yes'),
+                    Radio(
+                      value: true,
+                      groupValue: null,
+                      onChanged: null,
                     ),
-            );
-          },
+                    Text('No'),
+                    Radio(
+                      value: false,
+                      groupValue: null,
+                      onChanged: null,
+                    ),
+                  ],
+                ),
         );
-  }  
+      },
+    );
+  }
 }
 
 class NonEditableQuestions extends StatelessWidget {
