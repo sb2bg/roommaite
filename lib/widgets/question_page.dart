@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:roommaite/models/profile.dart';
 import 'package:roommaite/models/questions.dart';
+import 'package:roommaite/widgets/profile_avatar.dart';
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage({super.key, required this.edit});
+  const QuestionPage({super.key, required this.edit, required this.profile});
 
   final bool edit;
+  final Profile profile;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
@@ -15,23 +18,27 @@ class _QuestionPageState extends State<QuestionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-          child: widget.edit ? EditableQuestions() : NonEditableQuestions()),
+          child: widget.edit
+              ? EditableQuestions(profile: widget.profile)
+              : NonEditableQuestions(profile: widget.profile)),
     );
   }
 }
 
 class EditableQuestions extends StatelessWidget {
-  const EditableQuestions({super.key});
+  const EditableQuestions({super.key, required this.profile});
+
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-      itemCount: requiredQuestions.length + _optionalQuestions.length,
+      itemCount: requiredQuestions.length + optionalQuestions.length,
       separatorBuilder: (context, index) => const Divider(),
       itemBuilder: (context, index) {
         final question = index < requiredQuestions.length
             ? requiredQuestions[index]
-            : _optionalQuestions[index - requiredQuestions.length];
+            : optionalQuestions[index - requiredQuestions.length];
 
         return ListTile(
           title: Padding(
@@ -39,10 +46,13 @@ class EditableQuestions extends StatelessWidget {
             child: Text(question.question),
           ),
           subtitle: question is OpenEndedQuestion
-              ? const TextField(
-                  decoration: InputDecoration(
+              ? TextField(
+                  decoration: const InputDecoration(
                     hintText: 'Answer',
                   ),
+                  onChanged: (value) {
+                    question.answer = value;
+                  },
                 )
               : const Row(
                   children: [
@@ -67,11 +77,36 @@ class EditableQuestions extends StatelessWidget {
 }
 
 class NonEditableQuestions extends StatelessWidget {
-  const NonEditableQuestions({super.key});
+  const NonEditableQuestions({super.key, required this.profile});
+
+  final Profile profile;
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return ListView.separated(
+      itemCount: requiredQuestions.length + optionalQuestions.length,
+      separatorBuilder: (context, index) => const Divider(),
+      itemBuilder: (context, index) {
+        final question = index < requiredQuestions.length
+            ? requiredQuestions[index]
+            : optionalQuestions[index - requiredQuestions.length];
+
+        return ListTile(
+          title: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(question.question),
+          ),
+          subtitle: question is OpenEndedQuestion
+              ? Text('${question.answer}')
+              : Text(question is YesNoQuestion
+                  ? question.answer != null
+                      ? 'Yes'
+                      : 'No'
+                  : 'Unknown'),
+          trailing: ProfileAvatar(profile: profile),
+        );
+      },
+    );
   }
 }
 
@@ -92,7 +127,7 @@ final List<Question<dynamic>> requiredQuestions = [
   OpenEndedQuestion('What is your preferred number of roommates?'),
 ];
 
-final List<Question<dynamic>> _optionalQuestions = [
+final List<Question<dynamic>> optionalQuestions = [
   OpenEndedQuestion('What is your budget?'),
   OpenEndedQuestion('What is your preferred move-in date?'),
   OpenEndedQuestion('What is your preferred lease length?'),
