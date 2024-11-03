@@ -83,23 +83,29 @@ class _SearchPageState extends State<SearchPage> {
     final authService = Provider.of<AuthService>(context, listen: false);
     if (await authService.addMatch(match)) {
       // show popup!
-      final modal = SimpleDialog(
-        title: const Text('Roommates?'),
-        children: [
-          Text('You have matched with ${match.name}.'),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Close'),
+      final modal = Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0), // Add padding inside the dialog
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Roommates?', style: TextStyle(fontSize: 24)),
+              const SizedBox(height: 16),
+              Text('You have matched with ${match.name}.'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
           ),
-        ],
+        ),
       );
+
       if (mounted) {
-        await showDialog(
-            context: context,
-            builder: (context) =>
-                Padding(padding: const EdgeInsets.all(50), child: modal));
+        await showDialog(context: context, builder: (context) => modal);
       }
     }
     addMatchToPrefs(match);
