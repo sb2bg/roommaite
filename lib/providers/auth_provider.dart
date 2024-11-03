@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:roommaite/models/questions.dart';
 import 'package:roommaite/util/constants.dart';
+import 'package:roommaite/util/vector_data_helper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/profile.dart';
@@ -56,6 +57,12 @@ class AuthService {
     return questions.map((json) => Question.fromMap(json)).toList();
   }
 
+  Future<void> updateLocation(String location) async {
+    await _supabase.from('profiles').update({
+      'location': location,
+    }).eq('id', _supabase.auth.currentUser!.id);
+  }
+
   Future<void> answerQuestion(Question question) async {
     await _supabase.from('user_questions').upsert({
       'user_id': _supabase.auth.currentUser!.id,
@@ -65,6 +72,10 @@ class AuthService {
 
   Future<void> finishProfile() async {
     final questions = await getQuestions();
+    final profile = await getProfile();
+
+    await IrisVectorDataHelper.createProfile(
+        profile.id, questions, profile.location ?? 'Austin');
   }
 
   Future<String?> _tryWrapper(Function() function) async {
