@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class QuestionPage extends StatefulWidget {
-  const QuestionPage({super.key});
+  const QuestionPage({super.key, required this.edit});
+
+   final bool edit;
 
   @override
   State<QuestionPage> createState() => _QuestionPageState();
@@ -14,7 +16,7 @@ class _QuestionPageState extends State<QuestionPage> {
       appBar: AppBar(
         title: const Text('Question Page'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Question Page'),
       ),
     );

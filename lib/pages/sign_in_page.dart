@@ -48,7 +48,7 @@ class SignInPage extends StatelessWidget {
           // context.pushReplacement(const HomePage());
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
-              builder: (context) => MainScreen(),
+              builder: (context) => const MainScreen(),
             ),
           );
         },

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:roommaite/widgets/question_page.dart';
 
 import 'package:provider/provider.dart';
 import 'package:roommaite/models/profile.dart';
@@ -13,6 +14,18 @@ class ProfilePage extends StatefulWidget {
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class Question {
+  final String question;
+  final List<String>? options;
+  String answer;
+
+  Question({
+    required this.question, 
+    this.options, 
+    this.answer = ''
+  });
 }
 
 class _ProfilePageState extends State<ProfilePage> {
@@ -60,6 +73,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
     with SingleTickerProviderStateMixin {
   late final _tabController = TabController(length: 2, vsync: this);
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,9 +111,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
                   const SizedBox(height: 12),
                   Text(widget.profile.name,
                       style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  Text('This is an example bio. You can edit it in settings.'),
-                ],
+                          fontSize: 20, fontWeight: FontWeight.bold))                ],
               )),
           const Divider(),
           TabBar(
@@ -122,7 +134,7 @@ class _ProfileInfoState extends State<_ProfileInfo>
               controller: _tabController,
               children: const [
                 // Replace with your actual widgets or pages
-                Center(child: Text('About Me')),
+                QuestionPage(edit: true),
                 Center(child: Text('Preferences')),
               ],
             ),
