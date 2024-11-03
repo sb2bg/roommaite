@@ -11,6 +11,8 @@ class AuthService {
   Profile? _cachedProfile;
   DateTime? _lastProfileFetch;
 
+  String get userId => _supabase.auth.currentUser!.id;
+
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }
@@ -23,7 +25,7 @@ class AuthService {
       return _cachedProfile!;
     }
 
-    final profile = await getProfileById(_supabase.auth.currentUser!.id);
+    final profile = await getProfileById(userId);
 
     if (profile == null) {
       throw const AuthException('Profile not found.');
@@ -49,10 +51,8 @@ class AuthService {
   }
 
   Future<List<Question>> getQuestions() async {
-    final questions = await _supabase
-        .from('user_questions')
-        .select()
-        .eq('user_id', _supabase.auth.currentUser!.id);
+    final questions =
+        await _supabase.from('user_questions').select().eq('user_id', userId);
 
     return questions.map((json) => Question.fromMap(json)).toList();
   }
@@ -60,7 +60,7 @@ class AuthService {
   Future<void> updateLocation(String location) async {
     await _supabase.from('profiles').update({
       'location': location,
-    }).eq('id', _supabase.auth.currentUser!.id);
+    }).eq('id', userId);
   }
 
   Future<void> answerQuestion(Question question) async {
@@ -68,7 +68,7 @@ class AuthService {
       final existingQuestion = await _supabase
           .from('user_questions')
           .select()
-          .eq('user_id', _supabase.auth.currentUser!.id)
+          .eq('user_id', userId)
           .eq('question', question.question)
           .single();
 
@@ -78,7 +78,7 @@ class AuthService {
     } catch (error) {
       // Question doesn't exist
       await _supabase.from('user_questions').upsert({
-        'user_id': _supabase.auth.currentUser!.id,
+        'user_id': userId,
         ...question.toMap(),
       });
 
@@ -87,15 +87,11 @@ class AuthService {
   }
 
   Future<List<Profile>> getMatches() async {
-    final sentMatches = await _supabase
-        .from('matches')
-        .select('matchee')
-        .eq('matcher', _supabase.auth.currentUser!.id);
+    final sentMatches =
+        await _supabase.from('matches').select('matchee').eq('matcher', userId);
 
-    final receivedMatches = await _supabase
-        .from('matches')
-        .select('matcher')
-        .eq('matchee', _supabase.auth.currentUser!.id);
+    final receivedMatches =
+        await _supabase.from('matches').select('matcher').eq('matchee', userId);
 
     final matches = <Profile>[];
 

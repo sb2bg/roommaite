@@ -37,6 +37,14 @@ class _SearchPageState extends State<SearchPage> {
     List<Profile> matchesCopy = List.from(matches!);
 
     for (var match in matches!) {
+      if (mounted) {
+        final auth = Provider.of<AuthService>(context, listen: false);
+        if (match.id == auth.userId) {
+          matchesCopy.remove(match);
+          continue;
+        }
+      }
+
       final matchPrefsKey = 'match_${match.id}';
       final matchPrefsValue = prefs.getBool(matchPrefsKey);
 
