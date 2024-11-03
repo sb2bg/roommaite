@@ -21,22 +21,18 @@ class AuthService {
       return _cachedProfile!;
     }
 
-    try {
-      final response = await _supabase
-          .from('profiles')
-          .select()
-          .eq('id', _supabase.auth.currentUser!.id)
-          .single();
+    final response = await _supabase
+        .from('profiles')
+        .select()
+        .eq('id', _supabase.auth.currentUser!.id)
+        .single();
 
-      final profile = Profile.fromJson(response);
+    final profile = Profile.fromJson(response);
 
-      _cachedProfile = profile;
-      _lastProfileFetch = DateTime.now();
+    _cachedProfile = profile;
+    _lastProfileFetch = DateTime.now();
 
-      return profile;
-    } catch (error) {
-      throw const AuthException('Could not fetch profile.');
-    }
+    return profile;
   }
 
   Future<String?> _tryWrapper(Function() function) async {
