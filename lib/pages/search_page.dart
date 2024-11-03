@@ -4,6 +4,7 @@ import 'package:roommaite/models/profile.dart';
 import 'package:roommaite/providers/auth_provider.dart';
 import 'package:roommaite/util/theme.dart';
 import 'package:roommaite/util/vector_data_helper.dart';
+import 'package:roommaite/util/widgets.dart';
 import 'package:roommaite/widgets/profile_avatar.dart';
 import 'package:roommaite/widgets/question_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,6 +18,7 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   List<Profile>? matches;
+  bool loading = false;
 
   @override
   void initState() {
@@ -42,10 +44,13 @@ class _SearchPageState extends State<SearchPage> {
       for (var match in matches!) {
         if (mounted) {
           final auth = Provider.of<AuthService>(context, listen: false);
-          if (match.id == auth.userId ||
-              matchesToRemove.every((element) => element.id != match.id)) {
+          if (match.id == auth.userId) {
             matchesCopy.remove(match);
             continue;
+          }
+
+          if (matchesToRemove.any((element) => element.id == match.id)) {
+            matchesCopy.remove(match);
           }
         }
 
@@ -78,11 +83,23 @@ class _SearchPageState extends State<SearchPage> {
     final authService = Provider.of<AuthService>(context, listen: false);
     if (await authService.addMatch(match)) {
       // show popup!
-      final snackBar = SnackBar(
-        content: Text('${match.name} also added you, go to matches to view.'),
+      final modal = SimpleDialog(
+        title: const Text('Roommates?'),
+        children: [
+          Text('You have matched with ${match.name}.'),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Close'),
+          ),
+        ],
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        await showDialog(
+            context: context,
+            builder: (context) =>
+                Padding(padding: const EdgeInsets.all(50), child: modal));
       }
     }
     addMatchToPrefs(match);
@@ -116,77 +133,87 @@ class _SearchPageState extends State<SearchPage> {
       appBar: AppBar(
         title: const Text('Search Page'),
       ),
-      body: Center(
-        child: matches == null
-            ? const CircularProgressIndicator()
-            : matches!.isEmpty
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('No more profiles to review'),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                          onPressed: () async {
-                            await _removeMatchesFromPrefs();
-                            setState(() {
-                              refresh();
-                            });
-                          },
-                          child: const Text('Review seen profiles')),
-                    ],
-                  )
-                : Stack(
-                    children: matches!.map((match) {
-                      return Card(
-                        color: AppColors.darkPurple,
-                        margin: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+      body: loading
+          ? Widgets.preloader
+          : Center(
+              child: matches == null
+                  ? const CircularProgressIndicator()
+                  : matches!.isEmpty
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Row(
+                            const Text('No more profiles to review'),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  setState(() {
+                                    loading = true;
+                                  });
+                                  await _removeMatchesFromPrefs();
+                                  setState(() {
+                                    refresh();
+                                    loading = false;
+                                  });
+                                },
+                                child: const Text('Review seen profiles')),
+                          ],
+                        )
+                      : Stack(
+                          children: matches!.map((match) {
+                            return Card(
+                              color: AppColors.darkPurple,
+                              margin: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  ProfileAvatar(profile: match, radius: 40),
-                                  Expanded(
-                                    child: ListTile(
-                                      title: Text(
-                                        match.name,
-                                        style: const TextStyle(fontSize: 18),
-                                      ),
-                                      subtitle: Text(
-                                        match.location ?? 'No location',
-                                        style: const TextStyle(fontSize: 14),
-                                      ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: Row(
+                                      children: [
+                                        ProfileAvatar(
+                                            profile: match, radius: 40),
+                                        Expanded(
+                                          child: ListTile(
+                                            title: Text(
+                                              match.name,
+                                              style:
+                                                  const TextStyle(fontSize: 18),
+                                            ),
+                                            subtitle: Text(
+                                              match.location ?? 'No location',
+                                              style:
+                                                  const TextStyle(fontSize: 14),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                  ),
+                                  Expanded(
+                                      child: QuestionPage(
+                                          edit: false, profile: match)),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.close),
+                                        color: Colors.red,
+                                        onPressed: () => _handleDeny(match),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.check),
+                                        color: Colors.green,
+                                        onPressed: () => _handleApprove(match),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
-                            ),
-                            Expanded(
-                                child:
-                                    QuestionPage(edit: false, profile: match)),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.close),
-                                  color: Colors.red,
-                                  onPressed: () => _handleDeny(match),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.check),
-                                  color: Colors.green,
-                                  onPressed: () => _handleApprove(match),
-                                ),
-                              ],
-                            ),
-                          ],
+                            );
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
-                  ),
-      ),
+            ),
     );
   }
 }

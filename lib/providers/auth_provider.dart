@@ -45,11 +45,19 @@ class AuthService {
 
     final matches = await getMatches();
 
-    if (matches.contains(matchee)) {
+    if (matches.any((p) => p.id == matchee.id)) {
       return true;
     }
 
     return false;
+  }
+
+  Future<void> removeMatch(Profile matchee) async {
+    await _supabase
+        .from('matches')
+        .delete()
+        .eq('matcher', userId)
+        .eq('matchee', matchee.id);
   }
 
   Future<Profile?> getProfileById(String uuid) async {
