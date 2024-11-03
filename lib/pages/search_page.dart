@@ -19,6 +19,7 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   List<Profile>? _matches;
   bool _loading = false;
+  bool _loadingCheck = false;
 
   @override
   void initState() {
@@ -72,9 +73,11 @@ class _SearchPageState extends State<SearchPage> {
         }
       }
 
-      setState(() {
-        _matches = matchesCopy;
-      });
+      if (mounted) {
+        setState(() {
+          _matches = matchesCopy;
+        });
+      }
     }
   }
 
@@ -85,8 +88,12 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _handleApprove(Profile match) async {
+    setState(() {
+      _loadingCheck = true;
+    });
     // Handle approve logic here
     final authService = Provider.of<AuthService>(context, listen: false);
+
     if (await authService.addMatch(match)) {
       // show popup!
       final modal = Dialog(
@@ -118,6 +125,7 @@ class _SearchPageState extends State<SearchPage> {
     if (mounted) {
       setState(() {
         _matches?.remove(match);
+        _loadingCheck = false;
       });
     }
   }
@@ -210,7 +218,9 @@ class _SearchPageState extends State<SearchPage> {
                                         onPressed: () => _handleDeny(match),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.check),
+                                        icon: _loadingCheck
+                                            ? const CircularProgressIndicator()
+                                            : const Icon(Icons.check),
                                         color: Colors.green,
                                         onPressed: () => _handleApprove(match),
                                       ),
