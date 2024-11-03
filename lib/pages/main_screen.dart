@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:roommaite/pages/calibrate_page.dart';
+import 'package:roommaite/pages/matches_page.dart';
 import 'package:roommaite/pages/profile_page.dart';
 import 'package:roommaite/pages/search_page.dart';
 import 'package:roommaite/util/theme.dart';
@@ -18,8 +18,8 @@ class _MainScreenState extends State<MainScreen> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     // HomePage(),
-    SearchPage(),
-    const CalibratePage(),
+    const SearchPage(),
+    const MatchesPage(),
     const ProfilePage(),
   ];
 
@@ -58,9 +58,9 @@ class _MainScreenState extends State<MainScreen> {
                 text: 'Search',
               ),
               GButton(
-                icon: CupertinoIcons.tuningfork,
+                icon: CupertinoIcons.heart,
                 iconActiveColor: Colors.white,
-                text: 'Calibrate',
+                text: 'Matches',
               ),
               GButton(
                 icon: CupertinoIcons.person,

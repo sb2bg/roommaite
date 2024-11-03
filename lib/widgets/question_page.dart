@@ -63,60 +63,59 @@ class _EditableQuestionsState extends State<EditableQuestions> {
                 : null;
 
             return ListTile(
-              title: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text(question.question),
-              ),
-              subtitle: question is OpenEndedQuestion
-                  ? Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: const InputDecoration(
-                              hintText: 'Answer',
+                title: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(question.question),
+                ),
+                subtitle: question is OpenEndedQuestion
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                hintText: 'Answer',
+                              ),
+                              controller: controller,
+                              onChanged: (value) {
+                                question.answer = value;
+                              },
                             ),
-                            controller: controller,
-                            onChanged: (value) {
-                              question.answer = value;
-                            },
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.save),
-                          onPressed: waiting
-                              ? null
-                              : () async {
-                                  question.answer = controller!.text;
-                                  setState(() {
-                                    waiting = true;
-                                  });
-                                  await Provider.of<AuthService>(context,
-                                          listen: false)
-                                      .answerQuestion(question);
-                                  setState(() {
-                                    waiting = false;
-                                  });
-                                },
-                        )
-                      ],
-                    )
-                  : Row(
-                      children: [
-                        const Text('Yes'),
-                        Radio(
-                          value: true,
-                          groupValue: question.answer,
-                          onChanged: null,
-                        ),
-                        const Text('No'),
-                        Radio(
-                          value: false,
-                          groupValue: question.answer,
-                          onChanged: null,
-                        ),
-                      ],
-                    ),
-            );
+                          IconButton(
+                            icon: const Icon(Icons.save),
+                            onPressed: waiting
+                                ? null
+                                : () async {
+                                    question.answer = controller!.text;
+                                    setState(() {
+                                      waiting = true;
+                                    });
+                                    await Provider.of<AuthService>(context,
+                                            listen: false)
+                                        .answerQuestion(question);
+                                    setState(() {
+                                      waiting = false;
+                                    });
+                                  },
+                          )
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          const Text('Yes'),
+                          Radio(
+                            value: true,
+                            groupValue: question.answer,
+                            onChanged: null,
+                          ),
+                          const Text('No'),
+                          Radio(
+                            value: false,
+                            groupValue: question.answer,
+                            onChanged: null,
+                          ),
+                        ],
+                      ));
           },
         );
       },

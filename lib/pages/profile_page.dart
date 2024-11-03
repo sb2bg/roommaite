@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:roommaite/pages/matches_page.dart';
 import 'package:roommaite/widgets/question_page.dart';
 
 import 'package:provider/provider.dart';
@@ -50,10 +48,7 @@ class _ProfileInfo extends StatefulWidget {
   State<_ProfileInfo> createState() => _ProfileInfoState();
 }
 
-class _ProfileInfoState extends State<_ProfileInfo>
-    with SingleTickerProviderStateMixin {
-  late final _tabController = TabController(length: 2, vsync: this);
-
+class _ProfileInfoState extends State<_ProfileInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,8 +56,10 @@ class _ProfileInfoState extends State<_ProfileInfo>
         title: Text(widget.profile.name),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              Provider.of<AuthService>(context, listen: false).signOut();
+            },
           ),
         ],
       ),
@@ -97,32 +94,10 @@ class _ProfileInfoState extends State<_ProfileInfo>
                   ),
                 ],
               )),
-          TabBar(
-            dividerColor: Colors.transparent,
-            controller: _tabController,
-            tabs: const [
-              Tab(
-                // about this user's habits
-                icon: Icon(CupertinoIcons.person),
-              ),
-              Tab(
-                // our matches
-                icon: Icon(CupertinoIcons.heart),
-              )
-            ],
-          ),
           const Divider(),
-          Expanded(
-            // Make sure TabBarView is flexible to fit the remaining space
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // Replace with your actual widgets or pages
-                QuestionPage(edit: true, profile: widget.profile),
-                const MatchesPage(),
-              ],
-            ),
-          ),
+          const Text('About Me', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 10),
+          Expanded(child: QuestionPage(edit: true, profile: widget.profile)),
         ],
       ),
     );

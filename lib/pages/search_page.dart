@@ -57,9 +57,11 @@ class _SearchPageState extends State<SearchPage> {
       }
     }
 
-    setState(() {
-      matches = matchesCopy;
-    });
+    if (mounted) {
+      setState(() {
+        matches = matchesCopy;
+      });
+    }
   }
 
   void addMatchToPrefs(Profile match) async {

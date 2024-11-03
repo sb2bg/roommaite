@@ -28,6 +28,9 @@ class _MatchesPageState extends State<MatchesPage> {
         final matches = snapshot.data!;
 
         return Scaffold(
+          appBar: AppBar(
+            title: const Text('Matches'),
+          ),
           body: matches.isEmpty
               ? const Center(
                   child: Text('No matches yet! Check back later!'),
