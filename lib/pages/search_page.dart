@@ -17,8 +17,8 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  List<Profile>? matches;
-  bool loading = false;
+  List<Profile>? _matches;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -28,26 +28,26 @@ class _SearchPageState extends State<SearchPage> {
 
   void refresh() {
     setState(() {
-      loading = true;
+      _loading = true;
     });
     final authService = Provider.of<AuthService>(context, listen: false);
     IrisVectorDataHelper.getMatches(authService).then((value) {
-      matches = value;
+      _matches = value;
       filterMatches();
       setState(() {
-        loading = false;
+        _loading = false;
       });
     });
   }
 
   void filterMatches() async {
     final prefs = await SharedPreferences.getInstance();
-    List<Profile> matchesCopy = List.from(matches!);
+    List<Profile> matchesCopy = List.from(_matches!);
     if (mounted) {
       List<Profile> matchesToRemove =
           await Provider.of<AuthService>(context, listen: false).getMatches();
 
-      for (var match in matches!) {
+      for (var match in _matches!) {
         if (mounted) {
           final auth = Provider.of<AuthService>(context, listen: false);
           if (match.id == auth.userId) {
@@ -73,7 +73,7 @@ class _SearchPageState extends State<SearchPage> {
       }
 
       setState(() {
-        matches = matchesCopy;
+        _matches = matchesCopy;
       });
     }
   }
@@ -117,7 +117,7 @@ class _SearchPageState extends State<SearchPage> {
     addMatchToPrefs(match);
     if (mounted) {
       setState(() {
-        matches?.remove(match);
+        _matches?.remove(match);
       });
     }
   }
@@ -126,7 +126,7 @@ class _SearchPageState extends State<SearchPage> {
     // Handle deny logic here
     addMatchToPrefs(match);
     setState(() {
-      matches?.remove(match);
+      _matches?.remove(match);
     });
   }
 
@@ -145,12 +145,12 @@ class _SearchPageState extends State<SearchPage> {
       appBar: AppBar(
         title: const Text('Search Page'),
       ),
-      body: loading
+      body: _loading
           ? Widgets.preloader
           : Center(
-              child: matches == null
+              child: _matches == null
                   ? const CircularProgressIndicator()
-                  : matches!.isEmpty
+                  : _matches!.isEmpty
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -167,7 +167,7 @@ class _SearchPageState extends State<SearchPage> {
                           ],
                         )
                       : Stack(
-                          children: matches!.map((match) {
+                          children: _matches!.map((match) {
                             return Card(
                               color: AppColors.darkPurple,
                               margin: const EdgeInsets.all(16),
