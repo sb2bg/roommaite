@@ -41,7 +41,7 @@ class _MainScreenState extends State<MainScreen> {
           child: GNav(
             tabBackgroundColor: AppColors.purple,
             color: Colors.white,
-            textStyle: TextStyle(color: Colors.white),
+            textStyle: const TextStyle(color: Colors.white),
             gap: 8,
             activeColor: Colors.black,
             iconSize: 24,

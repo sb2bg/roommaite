@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:roommaite/models/profile.dart';
 import 'package:roommaite/models/questions.dart';
 import 'package:roommaite/providers/auth_provider.dart';
+import 'package:roommaite/util/theme.dart';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({super.key, required this.edit, required this.profile});
@@ -55,7 +56,8 @@ class _EditableQuestionsState extends State<EditableQuestions> {
 
         return ListView.separated(
           itemCount: questions.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) =>
+              const Divider(color: AppColors.purple),
           itemBuilder: (context, index) {
             final question = questions[index];
             final controller = question is OpenEndedQuestion

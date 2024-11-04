@@ -35,9 +35,11 @@ class _SearchPageState extends State<SearchPage> {
     IrisVectorDataHelper.getMatches(authService).then((value) {
       _matches = value;
       filterMatches();
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     });
   }
 
@@ -74,9 +76,7 @@ class _SearchPageState extends State<SearchPage> {
       }
 
       if (mounted) {
-        setState(() {
-          _matches = matchesCopy;
-        });
+        _matches = matchesCopy;
       }
     }
   }
@@ -151,7 +151,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Search Page'),
+        title: const Text('Find Roommates'),
       ),
       body: _loading
           ? Widgets.preloader
@@ -178,6 +178,10 @@ class _SearchPageState extends State<SearchPage> {
                           children: _matches!.map((match) {
                             return Card(
                               color: AppColors.darkPurple,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: const BorderSide(color: AppColors.purple),
+                              ),
                               margin: const EdgeInsets.all(16),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
